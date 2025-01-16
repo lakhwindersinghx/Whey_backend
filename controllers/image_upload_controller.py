@@ -67,8 +67,8 @@ def upload_label():
 
         return jsonify({
             "message": "File uploaded successfully",
-            "extracted_text": extracted_text,
-            "cleaned_ingredients": cleaned_ingredients,
+            # "extracted_text": extracted_text,
+            # "cleaned_ingredients": cleaned_ingredients,
             "final_ingredients": final_ingredients,
             "analysis": analysis_result
         }), 200

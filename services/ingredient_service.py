@@ -1,5 +1,5 @@
 from database import connect_to_mysql
-from utils.scoring import calculate_score
+from utils.scoring import calculate_quality_score
 
 
 def add_ingredient_to_database(ingredient):
@@ -75,14 +75,17 @@ def analyze_ingredients(ingredients):
                     add_ingredient_to_database(ingredient)
 
         # Add a score based on categories
-        print("Calculating score...")
-        response["score"] = calculate_score(
+        print("Calculating quality score...")
+        quality_result = calculate_quality_score(
             response["high_quality"],
+            response["neutral"],
             response["fillers"],
             response["artificial"],
             response["unknown"],
-            response["neutral"]
         )
+        
+        response["score"] = quality_result["score"]
+        response["quality_label"] = quality_result["quality_label"]
 
         # Close the database connection
         conn.close()
