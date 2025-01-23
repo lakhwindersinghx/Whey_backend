@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import LandingPage from './pages/LandingPage';
 import UploadPage from './pages/UploadingPage';
 import ResultsPage from './pages/ResultsPage';
 import Header from './components/Header';
@@ -15,7 +14,6 @@ const App = () => {
         <Header />
         <main className="flex-grow">
           <Routes>
-            <Route path="/" element={<LandingPage />} />
             <Route path="/upload" element={<UploadPage />} />
             <Route path="/results" element={<ResultsPage />} />
           </Routes>

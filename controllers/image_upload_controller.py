@@ -3,12 +3,15 @@ from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
 from utils.ocr_util import extract_text_from_image
 from services.ingredient_service import analyze_ingredients
+from flask_cors import CORS
+
+
 
 # Blueprint for image upload
 image_upload_bp = Blueprint("image_upload", __name__)
 UPLOAD_FOLDER = "./uploads"
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
-
+CORS(image_upload_bp)
 # Ensure the upload folder exists
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
@@ -38,6 +41,8 @@ def split_nested_ingredients(ingredients):
     return split_ingredients
 
 
+from flask import make_response
+
 @image_upload_bp.route("/upload-label", methods=["POST"])
 def upload_label():
     try:
@@ -52,26 +57,33 @@ def upload_label():
         # Extract text from the image
         extracted_text = extract_text_from_image(file_path)
         if not extracted_text:
-            return jsonify({"error": "Failed to extract text from the image"}), 500
-
-        # Log extracted text
-        print(f"Extracted text: {extracted_text}")
-  
+            return make_response(
+                jsonify({"error": "Failed to extract text from the image"}), 500
+            )
 
         cleaned_ingredients = clean_extracted_text(extracted_text)
         final_ingredients = split_nested_ingredients(cleaned_ingredients)
-        print("after cleaning")
+
         # Analyze the extracted ingredients
         analysis_result = analyze_ingredients(final_ingredients)
-        print("after analysis")
 
-        return jsonify({
-            "message": "File uploaded successfully",
-            # "extracted_text": extracted_text,
-            # "cleaned_ingredients": cleaned_ingredients,
-            "final_ingredients": final_ingredients,
-            "analysis": analysis_result
-        }), 200
+        response = make_response(
+            jsonify(
+                {
+                    "message": "File uploaded successfully",
+                    "final_ingredients": final_ingredients,
+                    "analysis": analysis_result,
+                }
+            ),
+            200,
+        )
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        return response
+
     except Exception as e:
         print(f"Error: {e}")
-        return jsonify({"error": "Internal server error"}), 500
+        response = make_response(
+            jsonify({"error": "Internal server error"}), 500
+        )
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        return response

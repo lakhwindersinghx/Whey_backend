@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from services.ingredient_service import analyze_ingredients
 
+
 ingredient_bp = Blueprint("ingredient", __name__)
 
 @ingredient_bp.route("/analyze-ingredients", methods=["POST"])
