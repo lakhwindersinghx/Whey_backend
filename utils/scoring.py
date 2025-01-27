@@ -9,7 +9,7 @@ def calculate_quality_score(ingredients, high_quality_ingredients, neutral_ingre
     }
 
     # Initialize score and categories
-    total_score = 0
+    total_score = 100
     categorized = {"high_quality": [], "neutral": [], "fillers": [], "artificial": [], "unknown": []}
 
     # Categorize and score ingredients
