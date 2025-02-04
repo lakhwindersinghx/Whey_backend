@@ -88,8 +88,9 @@ def upload_label():
             }), 200
         )
         response.headers["Access-Control-Allow-Origin"] = "*"
+        
         return response
-
+    
     except Exception as e:
         print(f"Error: {e}")
         return make_response(jsonify({"error": "Internal server error"}), 500)

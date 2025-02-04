@@ -1,4 +1,5 @@
 "use client";
+
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { CloudUpload, Paperclip } from "lucide-react";
@@ -20,7 +21,11 @@ import {
   FileUploaderItem,
 } from "@/components/ui/file-upload";
 
-export default function MyForm({ setAnalysisResults }: { setAnalysisResults: (results: any) => void }) {
+export default function MyForm({
+  setAnalysisResults,
+}: {
+  setAnalysisResults: (results: any) => void;
+}) {
   const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -62,9 +67,13 @@ export default function MyForm({ setAnalysisResults }: { setAnalysisResults: (re
       }
 
       const responseData = await response.json();
+      console.log("Fetched response:", responseData);
+
+      // Update the analysis results with both ingredients and nutritional data
       setAnalysisResults({
         extracted_ingredients: responseData.final_ingredients || [],
         analysis_summary: responseData.analysis || {},
+        nutrition_info: responseData.nutrition_info || {}, // Send nutrition info to update the chart
       });
     } catch (err) {
       console.error("Error:", err);
