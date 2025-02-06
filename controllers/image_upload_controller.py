@@ -5,6 +5,7 @@ from utils.ocr_util import extract_text_from_image
 from services.ingredient_service import analyze_ingredients
 from services.nutrition_service import analyze_nutritional_info
 from flask_cors import CORS
+from database import connect_to_mysql  # Import the database connection
 
 # Blueprint for image upload
 image_upload_bp = Blueprint("image_upload", __name__)
@@ -54,6 +55,38 @@ def split_label_sections(text):
 
     return nutrition_text, ingredients_list
 
+def fetch_ingredient_details(ingredient):
+    """
+    Query the database to retrieve details of an ingredient.
+    """
+    try:
+        conn = connect_to_mysql()
+        if conn is None:
+            raise Exception("Database connection failed.")
+
+        with conn.cursor(dictionary=True) as cursor:
+            cursor.execute(
+                "SELECT ingredient, category, impact, notes, importance FROM ingredients WHERE ingredient = %s",
+                (ingredient,)
+            )
+            result = cursor.fetchone()
+            return result if result else {
+                "ingredient": ingredient,
+                "category": "Unknown",
+                "impact": "Not specified",
+                "notes": "No notes available",
+                "importance": "Unknown"
+            }
+    except Exception as e:
+        print(f"Error fetching details for ingredient '{ingredient}': {e}")
+        return {
+            "ingredient": ingredient,
+            "category": "Unknown",
+            "impact": "Not specified",
+            "notes": "No notes available",
+            "importance": "Unknown"
+        }
+
 @image_upload_bp.route("/upload-label", methods=["POST"])
 def upload_label():
     try:
@@ -75,8 +108,10 @@ def upload_label():
 
         # Analyze the nutrition info and ingredients
         nutrition_info = analyze_nutritional_info(nutrition_text)
-        final_ingredients = cleaned_ingredients  # No nested splitting needed for now
-        ingredient_analysis = analyze_ingredients(final_ingredients)
+        final_ingredients = cleaned_ingredients
+
+        # Fetch details for each ingredient
+        ingredient_analysis = [fetch_ingredient_details(ingredient) for ingredient in final_ingredients]
 
         # Combine results into a response
         response = make_response(
@@ -87,10 +122,10 @@ def upload_label():
                 "analysis": ingredient_analysis,
             }), 200
         )
+
         response.headers["Access-Control-Allow-Origin"] = "*"
-        
         return response
-    
+
     except Exception as e:
         print(f"Error: {e}")
         return make_response(jsonify({"error": "Internal server error"}), 500)

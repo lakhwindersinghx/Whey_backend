@@ -44,7 +44,7 @@ export function ScoreRadialChart({ score }: { score: number }) {
           <RadialBarChart
             data={chartData}
             startAngle={0}
-            endAngle={360 * (score / 100)} // Display percentage of 100
+            endAngle={360 * (score / 10)} // Display percentage of 100
             innerRadius={80}
             outerRadius={110}
           >
@@ -79,7 +79,7 @@ export function ScoreRadialChart({ score }: { score: number }) {
                           y={(viewBox.cy || 0) + 24}
                           className="fill-muted-foreground"
                         >
-                          /100
+                          /10
                         </tspan>
                       </text>
                     );

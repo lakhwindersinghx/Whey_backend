@@ -15,29 +15,42 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/s
 import MyForm from "@/components/my-form";
 import { ScoreRadialChart } from "@/components/score"; // Radial Chart
 import { Progress } from "@/components/ui/progress"; // Progress Bars
-import { NutritionChartComponent } from "@/components/nutrition_component"; // Correct import
+import { NutritionChartComponent } from "@/components/nutrition_component"; // Pie Chart for Nutrition
+import {Accordion,AccordionContent,AccordionItem,AccordionTrigger} from "@/components/ui/accordion"
 
 export default function Page() {
-  const [analysisResults, setAnalysisResults] = useState<any | null>(null);
-
-  // Extract nutritional info from analysisResults
-  const nutritionalInfo = analysisResults?.nutrition_info || {
-    calories: 0,
-    protein_per_serving: 0,
-    carbs_per_serving: 0,
-    fat_per_serving: 0,
+  // Default mock data for initial view
+  const defaultAnalysisResults = {
+    analysis_summary: {
+      score: 0,
+      artificial: [],
+      blend_detected: [],
+      fillers: [],
+      high_quality: [],
+      neutral: [],
+      unknown: [],
+    },
+    nutrition_info: {
+      calories: 1,
+      protein_per_serving: 1,
+      carbs_per_serving: 1,
+      fat_per_serving: 1,
+      fiber_per_serving: 1,
+    },
   };
 
+  const [analysisResults, setAnalysisResults] = useState<any>(defaultAnalysisResults);
+
+  // Extract nutritional info from analysisResults
+  const nutritionalInfo = analysisResults.nutrition_info;
+
   // Prepare progress bar data
-  const progressData =
-    analysisResults && analysisResults.analysis_summary
-      ? Object.entries(analysisResults.analysis_summary)
-          .filter(([category]) => category !== "score" && category !== "quality_label")
-          .map(([category, items]) => ({
-            category,
-            count: Array.isArray(items) ? items.length : 0,
-          }))
-      : [];
+  const progressData = Object.entries(analysisResults.analysis_summary)
+    .filter(([category]) => category !== "score" && category !== "quality_label")
+    .map(([category, items]) => ({
+      category,
+      count: Array.isArray(items) ? items.length : 0,
+    }));
 
   const totalIngredients = progressData.reduce((total, item) => total + item.count, 0) || 1; // Avoid division by zero
 
@@ -70,14 +83,12 @@ export default function Page() {
 
             <div className="grid grid-cols-2 gap-4">
               {/* Radial Chart */}
-              {analysisResults?.analysis_summary?.score !== undefined && (
-                <div className="w-full">
-                  <ScoreRadialChart score={analysisResults.analysis_summary.score} />
-                  <p className="mt-2 text-sm text-muted-foreground text-center">
-                    Protein Analysis Score
-                  </p>
-                </div>
-              )}
+              <div className="w-full">
+                <ScoreRadialChart score={analysisResults.analysis_summary.score} />
+                <p className="mt-2 text-sm text-muted-foreground text-center">
+                  Protein Analysis Score
+                </p>
+              </div>
 
               {/* Nutritional Breakdown Pie Chart */}
               <div className="w-full">
@@ -91,24 +102,38 @@ export default function Page() {
             {/* Progress Bars Section */}
             <div className="mt-6">
               <h2 className="text-lg font-bold mb-4">Ingredient Summary</h2>
-              {progressData.length > 0 ? (
-                <div className="grid gap-4">
-                  {progressData.map(({ category, count }, index) => (
-                    <div key={index} className="mb-2">
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="capitalize">{category}</span>
-                        <span>
-                          {count} / {totalIngredients}
-                        </span>
-                      </div>
-                      <Progress value={(count / totalIngredients) * 100} />
+              <div className="grid gap-4">
+                {progressData.map(({ category, count }, index) => (
+                  <div key={index} className="mb-2">
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="capitalize">{category}</span>
+                      <span>
+                        {count} / {totalIngredients}
+                      </span>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <p>No results available yet.</p>
-              )}
+                    <Progress value={(count / totalIngredients) * 100} />
+                  </div>
+                ))}
+              </div>
             </div>
+            {analysisResults.extracted_ingredients?.length > 0 && (
+              <div className="mt-6">
+                <Accordion type="single" collapsible>
+                  <AccordionItem value="extracted-ingredients">
+                    <AccordionTrigger>Extracted Ingredients</AccordionTrigger>
+                    <AccordionContent>
+                      <ul className="list-disc pl-6">
+                        {analysisResults.extracted_ingredients.map((ingredient: string, index: number) => (
+                          <li key={index}>{ingredient}</li>
+                        ))}
+                      </ul>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              </div>
+            )}
+
+
           </div>
 
           {/* Right Section: Form */}

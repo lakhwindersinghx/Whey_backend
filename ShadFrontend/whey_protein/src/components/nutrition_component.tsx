@@ -44,9 +44,14 @@ export function NutritionChartComponent({ nutritionInfo }: NutritionChartProps) 
   return (
     <Card className="flex flex-col dark:bg-black">
       <CardHeader className="items-center pb-0">
-        <CardTitle className="dark:text-white">Macronutrient Breakdown</CardTitle>
-        <CardDescription className="dark:text-gray-400">Based on uploaded nutrition label</CardDescription>
-      </CardHeader>
+      <CardTitle className="dark:text-white">Macronutrient Breakdown</CardTitle>
+      <CardDescription className="dark:text-gray-400">Based on uploaded nutrition label</CardDescription>
+      <div className="flex items-center justify-center mt-2">
+        <span className="text-2xl text-gray-600 dark:text-blue-300">Calories:</span>
+        <span className="ml-1 text-2xl font-medium text-gray-600 dark:text-gray-400"> {nutritionInfo.calories || 0} kcal</span>
+      </div>
+    </CardHeader>
+
       <CardContent className="flex-1 pb-0">
         <ChartContainer config={chartConfig} className="mx-auto aspect-square max-h-[300px]">
           <PieChart>
@@ -75,4 +80,3 @@ export function NutritionChartComponent({ nutritionInfo }: NutritionChartProps) 
     </Card>
   )
 }
-
