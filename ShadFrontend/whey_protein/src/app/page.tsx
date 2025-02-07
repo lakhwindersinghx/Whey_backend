@@ -1,5 +1,6 @@
 "use client";
-
+import { getCurrentUser } from "@/lib/auth"
+import { redirect } from "next/navigation"
 import { AppSidebar } from "@/components/app-sidebar";
 import { useState } from "react";
 import {
@@ -18,7 +19,8 @@ import { Progress } from "@/components/ui/progress"; // Progress Bars
 import { NutritionChartComponent } from "@/components/nutrition_component"; // Pie Chart for Nutrition
 import {Accordion,AccordionContent,AccordionItem,AccordionTrigger} from "@/components/ui/accordion"
 
-export default function Page() {
+export  default async function Page() {
+  
   // Default mock data for initial view
   const defaultAnalysisResults = {
     analysis_summary: {
@@ -54,6 +56,11 @@ export default function Page() {
 
   const totalIngredients = progressData.reduce((total, item) => total + item.count, 0) || 1; // Avoid division by zero
 
+    const user = await getCurrentUser()
+  
+    if (!user) {
+      redirect("/auth/sign-in")
+    }
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -146,3 +153,4 @@ export default function Page() {
     </SidebarProvider>
   );
 }
+

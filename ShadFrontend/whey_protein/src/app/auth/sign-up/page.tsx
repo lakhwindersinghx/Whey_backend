@@ -29,9 +29,9 @@ import { PhoneInput } from '@/components/ui/phone-input'
 // Define validation schema using Zod
 const formSchema = z
   .object({
-    name: z
+    username: z
       .string()
-      .min(2, { message: 'Name must be at least 2 characters long' }),
+      .min(2, { message: 'Username must be at least 2 characters long' }),
     email: z.string().email({ message: 'Invalid email address' }),
     phone: z.string().min(10, { message: 'Phone number must be valid' }),
     password: z
@@ -49,7 +49,7 @@ export default function RegisterPreview() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
+      username: '',
       email: '',
       phone: '',
       password: '',
@@ -59,16 +59,27 @@ export default function RegisterPreview() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      // Assuming an async registration function
-      console.log(values)
-      toast(
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-        </pre>,
-      )
+      const response = await fetch('/api/auth/sign-up', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: values.username,
+          email: values.email,
+          password: values.password,
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Signup failed.')
+      }
+
+      toast.success('User registered successfully!')
     } catch (error) {
-      console.error('Form submission error', error)
-      toast.error('Failed to submit the form. Please try again.')
+      console.error('Form submission error:', error)
+      toast.error('Failed to register. Please try again.')
     }
   }
 
@@ -85,15 +96,15 @@ export default function RegisterPreview() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <div className="grid gap-4">
-                {/* Name Field */}
+                {/* Username Field */}
                 <FormField
                   control={form.control}
-                  name="name"
+                  name="username"
                   render={({ field }) => (
                     <FormItem className="grid gap-2">
-                      <FormLabel htmlFor="name">Full Name</FormLabel>
+                      <FormLabel htmlFor="username">Username</FormLabel>
                       <FormControl>
-                        <Input id="name" placeholder="John Doe" {...field} />
+                        <Input id="username" placeholder="Username" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -130,13 +141,6 @@ export default function RegisterPreview() {
                       <FormLabel htmlFor="phone">Phone Number</FormLabel>
                       <FormControl>
                         <PhoneInput {...field} defaultCountry="TR" />
-                        {/* <Input
-                          id="phone"
-                          placeholder="555-123-4567"
-                          type="tel"
-                          autoComplete="tel"
-                          {...field}
-                        /> */}
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -193,7 +197,7 @@ export default function RegisterPreview() {
           </Form>
           <div className="mt-4 text-center text-sm">
             Already have an account?{' '}
-            <Link href="#" className="underline">
+            <Link href="/auth/sign-in" className="underline">
               Login
             </Link>
           </div>
