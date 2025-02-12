@@ -4,13 +4,18 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 import prisma from "@/app/dbConfig/dbConfig"
 
-if (!process.env.NEXTAUTH_URL) {
-  throw new Error("NEXTAUTH_URL environment variable is not set")
+// Validate environment variables
+const validateEnv = () => {
+  const requiredEnvVars = ["NEXTAUTH_URL", "NEXTAUTH_SECRET", "DATABASE_URL"] as const
+  for (const envVar of requiredEnvVars) {
+    if (!process.env[envVar]) {
+      throw new Error(`${envVar} environment variable is not set`)
+    }
+  }
 }
 
-if (!process.env.NEXTAUTH_SECRET) {
-  throw new Error("NEXTAUTH_SECRET environment variable is not set")
-}
+// Call validation immediately
+validateEnv()
 
 export const authOptions: NextAuthOptions = {
   providers: [

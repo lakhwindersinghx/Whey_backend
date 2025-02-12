@@ -11,7 +11,8 @@ export async function getSession() {
 }
 
 export async function getCurrentUser() {
-  const session = await getSession()
-  return session?.user as AuthUser | null
+  const session = await getSession();
+  return session?.user ?? null; // Ensure it always returns null if no user is found
 }
+
 
