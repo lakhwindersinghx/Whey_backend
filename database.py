@@ -10,8 +10,8 @@ def connect_to_mysql():
             database="whey_protein",
             cursorclass=pymysql.cursors.DictCursor  # Ensures results are returned as dictionaries
         )
-        print("Successfully connected to MySQL!")
+        print(" Successfully connected to MySQL!")
         return connection  # Return the connection for use elsewhere
     except pymysql.MySQLError as e:
-        print("Error while connecting to MySQL:", e)
+        print(" Error while connecting to MySQL:", e)
         return None  # Return None to indicate a failure

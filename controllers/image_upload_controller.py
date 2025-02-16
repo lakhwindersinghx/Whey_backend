@@ -1,13 +1,14 @@
 import os
+import pymysql
 from flask import Blueprint, request, jsonify, make_response
 from werkzeug.utils import secure_filename
 from utils.ocr_util import extract_text_from_image
-from services.ingredient_service import analyze_ingredients
 from services.nutrition_service import analyze_nutritional_info
+from services.ingredient_service import analyze_ingredients
 from flask_cors import CORS
-from database import connect_to_mysql  # Import the database connection
+from database import connect_to_mysql
 
-# Blueprint for image upload
+# Flask Blueprint
 image_upload_bp = Blueprint("image_upload", __name__)
 UPLOAD_FOLDER = "./uploads"
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg"}
@@ -19,73 +20,29 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
-def split_label_sections(text):
+def split_label_sections(extracted_text):
     """
-    Split the label into 'nutrition' and 'ingredients' sections using keywords.
+    Splits extracted text into nutrition facts and ingredient list.
     """
-    nutrition_keywords = ["Nutrition Facts", "Supplement Facts", "Amount Per Serving"]
-    ingredient_keywords = ["Ingredients", "Other Ingredients", "Contains"]
-
+    lines = extracted_text.split("\n")
     nutrition_section = []
     ingredient_section = []
     current_section = None
 
-    for line in text.split("\n"):
+    for line in lines:
         line = line.strip()
 
-        # Determine which section we are in
-        if any(keyword.lower() in line.lower() for keyword in nutrition_keywords):
+        if "Amount Per Serving" in line or "Calories" in line:
             current_section = "nutrition"
-        elif any(keyword.lower() in line.lower() for keyword in ingredient_keywords):
+        elif "Other Ingredients" in line or "Ingredients" in line:
             current_section = "ingredients"
 
-        # Add lines to the appropriate section
         if current_section == "nutrition":
             nutrition_section.append(line)
         elif current_section == "ingredients":
             ingredient_section.append(line)
 
-    # Join the lines into text blocks
-    nutrition_text = " ".join(nutrition_section)
-    ingredient_text = " ".join(ingredient_section)
-
-    # Clean the ingredients section
-    ingredient_text = ingredient_text.replace("Ingredients:", "").strip()
-    ingredients_list = [ing.strip() for ing in ingredient_text.split(",") if ing.strip()]
-
-    return nutrition_text, ingredients_list
-
-def fetch_ingredient_details(ingredient):
-    """
-    Query the database to retrieve details of an ingredient.
-    """
-    try:
-        conn = connect_to_mysql()
-        if conn is None:
-            raise Exception("Database connection failed.")
-
-        with conn.cursor(dictionary=True) as cursor:
-            cursor.execute(
-                "SELECT ingredient, category, impact, notes, importance FROM ingredients WHERE ingredient = %s",
-                (ingredient,)
-            )
-            result = cursor.fetchone()
-            return result if result else {
-                "ingredient": ingredient,
-                "category": "Unknown",
-                "impact": "Not specified",
-                "notes": "No notes available",
-                "importance": "Unknown"
-            }
-    except Exception as e:
-        print(f"Error fetching details for ingredient '{ingredient}': {e}")
-        return {
-            "ingredient": ingredient,
-            "category": "Unknown",
-            "impact": "Not specified",
-            "notes": "No notes available",
-            "importance": "Unknown"
-        }
+    return " ".join(nutrition_section).strip(), " ".join(ingredient_section).strip()
 
 @image_upload_bp.route("/upload-label", methods=["POST"])
 def upload_label():
@@ -93,27 +50,26 @@ def upload_label():
         file_key = list(request.files.keys())[0]
         file = request.files[file_key]
 
-        # Save the uploaded file
+        # Save uploaded file
         filename = secure_filename(file.filename)
         file_path = os.path.join(UPLOAD_FOLDER, filename)
         file.save(file_path)
 
-        # Perform OCR to extract text
+        # Perform OCR
         extracted_text = extract_text_from_image(file_path)
         if not extracted_text:
             return make_response(jsonify({"error": "Failed to extract text from the image"}), 500)
 
-        # Split the label into nutrition info and ingredients
-        nutrition_text, cleaned_ingredients = split_label_sections(extracted_text)
+        # Split the label into sections
+        nutrition_text, ingredient_text = split_label_sections(extracted_text)
 
-        # Analyze the nutrition info and ingredients
+        # Analyze extracted nutrition information
         nutrition_info = analyze_nutritional_info(nutrition_text)
-        final_ingredients = cleaned_ingredients
 
-        # Fetch details for each ingredient
-        ingredient_analysis = [fetch_ingredient_details(ingredient) for ingredient in final_ingredients]
+        # Analyze extracted ingredients
+        final_ingredients, ingredient_analysis = analyze_ingredients(ingredient_text)
 
-        # Combine results into a response
+        # Create response
         response = make_response(
             jsonify({
                 "message": "File uploaded successfully",
@@ -128,4 +84,4 @@ def upload_label():
 
     except Exception as e:
         print(f"Error: {e}")
-        return make_response(jsonify({"error": "Internal server error"}), 500)
+        return make_response(jsonify({"error": f"Internal server error: {str(e)}"}), 500)

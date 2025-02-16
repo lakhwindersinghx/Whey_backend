@@ -1,4 +1,5 @@
 import NextAuth from "next-auth"
+import GoogleProvider from "next-auth/providers/google";
 import type { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
@@ -60,6 +61,10 @@ export const authOptions: NextAuthOptions = {
         }
       },
     }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
   ],
   pages: {
     signIn: "/auth/sign-in",
@@ -71,6 +76,9 @@ export const authOptions: NextAuthOptions = {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
+    async redirect({ url, baseUrl }) {
+      return baseUrl + "/dashboard"; // Redirect to /dashboard after login
+    },
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id

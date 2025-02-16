@@ -30,18 +30,18 @@ const data = {
     avatar: "/avatars/shadcn.jpg",
   },
   navMain: [
-    {
-      title: "Discover Services",
-      url: "#",
-      icon: SquareTerminal,
-      isActive: true,
-      items: [
-        {
-          title: "Analyze Whey",
-          url: "#",
-        },
-      ],
-    },
+    // {
+    //   title: "Discover Services",
+    //   url: "#",
+    //   icon: SquareTerminal,
+    //   isActive: true,
+    //   items: [
+    //     {
+    //       title: "Analyze Whey",
+    //       url: "#",
+    //     },
+    //   ],
+    // },
     {
       title: "How to",
       url: "#",
