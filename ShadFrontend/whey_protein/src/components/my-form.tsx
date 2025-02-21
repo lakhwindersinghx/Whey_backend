@@ -72,7 +72,8 @@ export default function MyForm({
       // Update the analysis results with both ingredients and nutritional data
       setAnalysisResults({
         extracted_ingredients: responseData.final_ingredients || [],
-        analysis_summary: responseData.analysis || {},
+        analysis: responseData.analysis || [], // Ensure `analysis` is an array
+        analysis_summary: responseData.analysis_summary || {}, // Ensure summary is set
         nutrition_info: responseData.nutrition_info || {}, // Send nutrition info to update the chart
       });
     } catch (err) {

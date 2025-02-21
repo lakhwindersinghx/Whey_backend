@@ -45,6 +45,46 @@ def split_label_sections(extracted_text):
     return " ".join(nutrition_section).strip(), " ".join(ingredient_section).strip()
 
 @image_upload_bp.route("/upload-label", methods=["POST"])
+# def upload_label():
+#     try:
+#         file_key = list(request.files.keys())[0]
+#         file = request.files[file_key]
+
+#         # Save uploaded file
+#         filename = secure_filename(file.filename)
+#         file_path = os.path.join(UPLOAD_FOLDER, filename)
+#         file.save(file_path)
+
+#         # Perform OCR
+#         extracted_text = extract_text_from_image(file_path)
+#         if not extracted_text:
+#             return make_response(jsonify({"error": "Failed to extract text from the image"}), 500)
+
+#         # Split the label into sections
+#         nutrition_text, ingredient_text = split_label_sections(extracted_text)
+
+#         # Analyze extracted nutrition information
+#         nutrition_info = analyze_nutritional_info(nutrition_text)
+
+#         # Analyze extracted ingredients
+#         final_ingredients, ingredient_analysis = analyze_ingredients(ingredient_text)
+
+#         # Create response
+#         response = make_response(
+#             jsonify({
+#                 "message": "File uploaded successfully",
+#                 "nutrition_info": nutrition_info,
+#                 "final_ingredients": final_ingredients,
+#                 "analysis": ingredient_analysis,
+#             }), 200
+#         )
+
+#         response.headers["Access-Control-Allow-Origin"] = "*"
+#         return response
+
+#     except Exception as e:
+#         print(f"Error: {e}")
+#         return make_response(jsonify({"error": f"Internal server error: {str(e)}"}), 500)
 def upload_label():
     try:
         file_key = list(request.files.keys())[0]
@@ -66,16 +106,20 @@ def upload_label():
         # Analyze extracted nutrition information
         nutrition_info = analyze_nutritional_info(nutrition_text)
 
-        # Analyze extracted ingredients
-        final_ingredients, ingredient_analysis = analyze_ingredients(ingredient_text)
+        # Analyze extracted ingredients and calculate the score
+        final_ingredients, ingredient_analysis, analysis_summary = analyze_ingredients(ingredient_text)
 
-        # Create response
+        # **Fix: Keep previous format and add score**
         response = make_response(
             jsonify({
                 "message": "File uploaded successfully",
                 "nutrition_info": nutrition_info,
                 "final_ingredients": final_ingredients,
-                "analysis": ingredient_analysis,
+                "analysis": ingredient_analysis,  # ✅ Keeps previous format
+                "analysis_summary": {
+                    "score": analysis_summary["score"],  # ✅ Include score
+                    "quality_label": analysis_summary["quality_label"]
+                }
             }), 200
         )
 

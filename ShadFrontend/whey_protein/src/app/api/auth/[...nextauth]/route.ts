@@ -1,22 +1,25 @@
-import NextAuth from "next-auth"
+import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import type { NextAuthOptions } from "next-auth"
-import CredentialsProvider from "next-auth/providers/credentials"
-import bcrypt from "bcryptjs"
-import prisma from "@/app/dbConfig/dbConfig"
+import type { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import bcrypt from "bcryptjs";
+import prisma from "@/app/dbConfig/dbConfig";
 
-// Validate environment variables
+// Ensure environment variables are loaded correctly
+console.log("from route.ts: NEXTAUTH_URL:", process.env.NEXTAUTH_URL);
+
+// Check required environment variables
 const validateEnv = () => {
-  const requiredEnvVars = ["NEXTAUTH_URL", "NEXTAUTH_SECRET", "DATABASE_URL"] as const
+  const requiredEnvVars = ["NEXTAUTH_URL", "NEXTAUTH_SECRET", "DATABASE_URL"];
   for (const envVar of requiredEnvVars) {
     if (!process.env[envVar]) {
-      throw new Error(`${envVar} environment variable is not set`)
+      throw new Error(`ERROR: ${envVar} environment variable is not set`);
     }
   }
-}
+};
 
 // Call validation immediately
-validateEnv()
+validateEnv();
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -28,36 +31,36 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error("Please enter both email and password")
+          throw new Error("Please enter both email and password");
         }
 
         try {
           const user = await prisma.user.findUnique({
             where: { email: credentials.email },
-          })
+          });
 
           if (!user) {
-            throw new Error("No user found with this email")
+            throw new Error("No user found with this email");
           }
 
           if (!user.emailVerified) {
-            throw new Error("Please verify your email before signing in")
+            throw new Error("Please verify your email before signing in");
           }
 
-          const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
+          const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
 
           if (!isPasswordValid) {
-            throw new Error("Invalid password")
+            throw new Error("Invalid password");
           }
 
           return {
             id: user.id,
             email: user.email,
             name: user.username,
-          }
+          };
         } catch (error) {
-          console.error("Auth error:", error)
-          throw new Error(error instanceof Error ? error.message : "Authentication failed")
+          console.error("Auth error:", error);
+          throw new Error(error instanceof Error ? error.message : "Authentication failed");
         }
       },
     }),
@@ -77,24 +80,24 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async redirect({ url, baseUrl }) {
-      return baseUrl + "/dashboard"; // Redirect to /dashboard after login
+      console.log("Redirecting from:", url, "to:", baseUrl + "/dashboard");
+      return baseUrl + "/dashboard"; // Ensure users go to /dashboard after login
     },
     async jwt({ token, user }) {
       if (user) {
-        token.id = user.id
+        token.id = user.id;
       }
-      return token
+      return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.id as string
+        session.user.id = token.id as string;
       }
-      return session
+      return session;
     },
   },
   debug: process.env.NODE_ENV === "development",
-}
+};
 
-const handler = NextAuth(authOptions)
-export { handler as GET, handler as POST }
-
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };

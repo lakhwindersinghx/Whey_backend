@@ -25,7 +25,7 @@ def calculate_quality_score(ingredients, high_quality_ingredients, neutral_ingre
     scoring = {
         "high_quality": 4,
         "neutral": 0,
-        "fillers": -3,
+        "fillers": -1,
         "artificial": -2,
         "unknown": -1,
         "blend_penalty": -4  # NEW: Penalty for protein blends
