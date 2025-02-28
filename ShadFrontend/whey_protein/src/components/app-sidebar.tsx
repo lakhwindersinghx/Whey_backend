@@ -3,10 +3,12 @@
 import * as React from "react"
 import { BookOpen, SquareTerminal } from "lucide-react"
 
-import { NavMain } from "./nav-main"
-import { NavUser } from "./nav-user"
+// If these are from your own UI library, adjust imports accordingly:
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar"
 import { Switch } from "@/components/ui/switch"
+
+import { NavMain } from "./nav-main"
+import { NavUser } from "./nav-user"
 
 // Logo component
 function Logo() {
@@ -17,8 +19,9 @@ function Logo() {
         alt="WheyBetter Logo"
         className="w-10 h-10 object-contain"
       />
-      {/* Add group-data-[collapsible=icon]:hidden to hide text when sidebar is collapsed */}
-      <span className="font-semibold text-lg text-foreground group-data-[collapsible=icon]:hidden">WheyBetter</span>
+      <span className="font-semibold text-lg text-foreground group-data-[collapsible=icon]:hidden">
+        WheyBetter
+      </span>
     </div>
   )
 }
@@ -30,18 +33,7 @@ const data = {
     avatar: "/avatars/shadcn.jpg",
   },
   navMain: [
-    // {
-    //   title: "Discover Services",
-    //   url: "#",
-    //   icon: SquareTerminal,
-    //   isActive: true,
-    //   items: [
-    //     {
-    //       title: "Analyze Whey",
-    //       url: "#",
-    //     },
-    //   ],
-    // },
+    // "How to" is collapsible because it has an 'items' array.
     {
       title: "How to",
       url: "#",
@@ -49,9 +41,16 @@ const data = {
       items: [
         {
           title: "Introduction",
-          url: "#",
+          url: "/introduction",
         },
       ],
+    },
+    // "Analyze Whey" is a normal link (no sub-items).
+    {
+      title: "Analyze Whey",
+      url: "/dashboard", // or any route for your dashboard
+      icon: SquareTerminal,
+      // No 'items' => it's rendered as a simple link/button
     },
   ],
 }
@@ -59,6 +58,7 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [isDarkMode, setIsDarkMode] = React.useState(false)
 
+  // Toggles dark mode on the <html> element
   React.useEffect(() => {
     if (isDarkMode) {
       document.documentElement.classList.add("dark")
@@ -72,8 +72,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <Logo />
       </SidebarHeader>
+
       <SidebarContent>
+        {/* Main Navigation */}
         <NavMain items={data.navMain} />
+
+        {/* Extra sections in sidebar (optional) */}
         <div className="mt-6 px-4 group-data-[collapsible=icon]:hidden">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-muted-foreground">Dark Mode</span>
@@ -81,11 +85,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </div>
         </div>
       </SidebarContent>
+
       <SidebarFooter>
         <NavUser user={data.user} />
       </SidebarFooter>
+
       <SidebarRail />
     </Sidebar>
   )
 }
-

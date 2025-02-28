@@ -69,12 +69,53 @@ export default function MyForm({
       const responseData = await response.json();
       console.log("Fetched response:", responseData);
 
+      // Build a custom analysis_summary merging server response with default structure.
+      const newAnalysisSummary = {
+        score: responseData.analysis_summary?.score ?? 0,
+        quality_label: responseData.analysis_summary?.quality_label ?? "Unknown",
+        artificial: [] as string[],
+        // blend_detected: [] as string[],
+        fillers: [] as string[],
+        high_quality: [] as string[],
+        neutral: [] as string[],
+        unknown: [] as string[],
+      };
+
+      if (responseData.analysis && Array.isArray(responseData.analysis)) {
+        responseData.analysis.forEach((item: any) => {
+          // Map importance to categories
+          switch (item.importance) {
+            case "HIGH QUALITY":
+              newAnalysisSummary.high_quality.push(item.ingredient);
+              break;
+            case "FILLER":
+              newAnalysisSummary.fillers.push(item.ingredient);
+              break;
+            case "NEUTRAL":
+              newAnalysisSummary.neutral.push(item.ingredient);
+              break;
+            case "UNKNOWN":
+              newAnalysisSummary.unknown.push(item.ingredient);
+              break;
+          }
+
+          // Optionally, detect "blend" or "artificial" by keyword in ingredient
+          const ingLower = item.ingredient.toLowerCase();
+          if (ingLower.includes("blend")) {
+            newAnalysisSummary.blend_detected.push(item.ingredient);
+          }
+          if (ingLower.includes("artificial")) {
+            newAnalysisSummary.artificial.push(item.ingredient);
+          }
+        });
+      }
+
       // Update the analysis results with both ingredients and nutritional data
       setAnalysisResults({
         extracted_ingredients: responseData.final_ingredients || [],
-        analysis: responseData.analysis || [], // Ensure `analysis` is an array
-        analysis_summary: responseData.analysis_summary || {}, // Ensure summary is set
-        nutrition_info: responseData.nutrition_info || {}, // Send nutrition info to update the chart
+        analysis: responseData.analysis || [],
+        analysis_summary: newAnalysisSummary,
+        nutrition_info: responseData.nutrition_info || {},
       });
     } catch (err) {
       console.error("Error:", err);
@@ -102,9 +143,7 @@ export default function MyForm({
                     {...field}
                   />
                 </FormControl>
-                <FormDescription>
-                  *You can enter ingredients manually.
-                </FormDescription>
+                <FormDescription>*You can enter ingredients manually.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}

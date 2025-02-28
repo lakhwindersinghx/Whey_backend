@@ -42,7 +42,8 @@ def extract_text_from_image(image_url):
         processed_img.save("processed_image.jpg")
 
         # Perform OCR
-        text = pytesseract.image_to_string(processed_img)
+        text = pytesseract.image_to_string(processed_img, config="--psm 6 --oem 3")
+
         return text.strip()
     except Exception as e:
         print(f"Error processing image {image_url}: {e}")
