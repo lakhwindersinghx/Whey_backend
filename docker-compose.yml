@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  backend:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/app
+    working_dir: /app
+    environment:
+      - DB_HOST=b8vtcotaqmvgtuxs8nep-mysql.services.clever-cloud.com
+      - DB_USER=uqwyjsbuhrlrac3z
+      - DB_PASS=R09PlVnu1g53YaUYu1CH
+      - DB_NAME=b8vtcotaqmvgtuxs8nep
+    depends_on:
+      - frontend
+
+  frontend:
+    build: ./ShadFrontend/whey_protein  # Correct frontend folder path
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./ShadFrontend/whey_protein:/app
+    working_dir: /app
+    environment:
+      - DATABASE_URL=mysql://uqwyjsbuhrlrac3z:R09PlVnu1g53YaUYu1CH@b8vtcotaqmvgtuxs8nep-mysql.services.clever-cloud.com:3306/b8vtcotaqmvgtuxs8nep
+      - NEXTAUTH_URL=https://your-vercel-app.vercel.app/
+      - NEXT_PUBLIC_API_URL=https://your-backend.clever-cloud.com/api
+    depends_on:
+      - backend
