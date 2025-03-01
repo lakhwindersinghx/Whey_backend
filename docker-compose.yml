@@ -2,16 +2,16 @@ version: "3.8"
 
 services:
   backend:
-    build: .
+    build: ./backend  # Specify the correct build context
     ports:
       - "5000:5000"
     volumes:
-      - .:/app
-    working_dir: /app
+      - ./backend:/app  # Ensure correct mounting
+    working_dir: /app  # /app is now mapped to ./backend
     environment:
       - DB_HOST=b8vtcotaqmvgtuxs8nep-mysql.services.clever-cloud.com
       - DB_USER=uqwyjsbuhrlrac3z
       - DB_PASS=R09PlVnu1g53YaUYu1CH
       - DB_NAME=b8vtcotaqmvgtuxs8nep
       - CC_PYTHON_MODULE=app  # Ensure Clever Cloud knows the Python entrypoint
-    command: ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "app:app"]
+    command: ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "app:app"]  # Run Gunicorn server from /app
