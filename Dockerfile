@@ -4,13 +4,14 @@ FROM python:3.9
 # Set working directory
 WORKDIR /app
 
-# Copy project files (backend is spread across root)
+# Copy project files
 COPY . /app
 
 # Install dependencies
+RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Set Clever Cloud MySQL credentials (instead of localhost)
+# Set Clever Cloud MySQL database credentials
 ENV DB_HOST="b8vtcotaqmvgtuxs8nep-mysql.services.clever-cloud.com"
 ENV DB_USER="uqwyjsbuhrlrac3z"
 ENV DB_PASS="R09PlVnu1g53YaUYu1CH"
@@ -20,4 +21,4 @@ ENV DB_NAME="b8vtcotaqmvgtuxs8nep"
 EXPOSE 5000
 
 # Start the Python backend
-CMD ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "app:app", "--bind", "0.0.0.0:5000"]
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "app:app"]

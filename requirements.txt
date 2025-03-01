@@ -1,2 +1,5 @@
-Flask
-mysql-connector-python
+
+Flask==3.1.0
+gunicorn==21.2.0
+mysql-connector-python==9.2.0
+pymysql==1.1.0
