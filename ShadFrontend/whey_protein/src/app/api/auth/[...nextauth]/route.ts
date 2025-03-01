@@ -6,19 +6,19 @@ import bcrypt from "bcryptjs";
 import prisma from "@/app/dbConfig/dbConfig";
 
 // Ensure environment variables are loaded correctly
-console.log("from route.ts: NEXTAUTH_URL:", process.env.NEXTAUTH_URL);
+// console.log("from route.ts: NEXTAUTH_URL:", process.env.NEXTAUTH_URL);
 
 // Check required environment variables
 const validateEnv = () => {
   const requiredEnvVars = ["NEXTAUTH_URL", "NEXTAUTH_SECRET", "DATABASE_URL"]
-  console.log(process.env.NEXTAUTH_URL);
+  // console.log(process.env.NEXTAUTH_URL);
   for (const envVar of requiredEnvVars) {
     if (!process.env[envVar]) {
       throw new Error(`ERROR: ${envVar} environment variable is not set`);
     }
   }
 };
-console.log(process.env.NEXTAUTH_URL)
+// console.log(process.env.NEXTAUTH_URL)
 // Call validation immediately
 validateEnv();
 
@@ -81,7 +81,7 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     async redirect({ url, baseUrl }) {
-      console.log("Redirecting from:", url, "to:", baseUrl + "/dashboard");
+      // console.log("Redirecting from:", url, "to:", baseUrl + "/dashboard");
       return baseUrl + "/dashboard"; // Ensure users go to /dashboard after login
     },
     async jwt({ token, user }) {

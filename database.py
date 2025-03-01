@@ -26,6 +26,8 @@ def connect_to_mysql():
         DB_PASS = os.getenv("DB_PASS", "R09PlVnu1g53YaUYu1CH")
         DB_NAME = os.getenv("DB_NAME", "b8vtcotaqmvgtuxs8nep")
 
+        print(f"Connecting to: {DB_HOST} as {DB_USER}")  # Debugging step
+
         connection = pymysql.connect(
             host=DB_HOST,
             user=DB_USER,
@@ -38,3 +40,11 @@ def connect_to_mysql():
     except pymysql.MySQLError as e:
         print("Error while connecting to MySQL:", e)
         return None
+
+# Run connection test
+if __name__ == "__main__":
+    conn = connect_to_mysql()
+    if conn:
+        print("Connection test successful!")
+    else:
+        print("Connection test failed!")

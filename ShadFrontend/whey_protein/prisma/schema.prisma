@@ -5,9 +5,10 @@ generator client {
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
+
 }
 
-// Update your existing schema to include resetToken fields
+// Only manage frontend-related tables
 model User {
   id                String    @id @default(cuid())
   email             String    @unique
@@ -19,7 +20,10 @@ model User {
   resetToken        String?   @unique
   resetTokenExpiry  DateTime?
   verificationTokens VerificationToken[]
+
+  @@map("user")  // Explicitly map the table name
 }
+
 
 model VerificationToken {
   id        String   @id @default(cuid())
@@ -31,4 +35,3 @@ model VerificationToken {
 
   @@index([userId])
 }
-
