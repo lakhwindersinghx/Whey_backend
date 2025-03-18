@@ -11,8 +11,6 @@ ARG EMAIL_PORT="587"  # Use 465 if you want SSL
 ARG EMAIL_USER="wheybetter@zohomailcloud.ca"
 ARG EMAIL_PASSWORD="gBAhDYRuv7zK"  # Replace this with the correct Zoho-generated app password
 ARG NEXT_PUBLIC_API_URL="https://backend-image-i6hjrqpaca-uc.a.run.app"
-ARG GOOGLE_CLIENT_ID="511914647313-i8iujkngnohop6niivqg9eor1aqcumld.apps.googleusercontent.com"
-ARG GOOGLE_CLIENT_SECRET="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"
 ARG NEXTAUTH_SECRET="default-secret"  # Replace "default-secret" with a secure value in production
 
 # Set the build-time environment variables so Next.js picks them up during build
