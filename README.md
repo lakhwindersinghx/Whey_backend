@@ -1,6 +1,7 @@
 # WheyBetter - Whey Protein Analysis Web App 🚀
 
 ## 📌 Overview
+[Visit WheyBetter](https://wheybetter.org)
 
 **WheyBetter** is a web application designed to analyze whey protein supplements based on their ingredients and nutritional composition. Users can manually input ingredient lists or upload images of nutrition labels to get an evaluation of the protein quality, macronutrient breakdown, and ingredient assessment.
 
@@ -27,4 +28,3 @@
 - ✅ Improve supplement scoring.  
 - ✅ Implement a recommendation system for better protein choices.  
 - ✅ Enhance UI/UX for a more user-friendly experience.  
-
