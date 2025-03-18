@@ -1,37 +1,83 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
-
 }
 
-// Only manage frontend-related tables
 model User {
-  id                String    @id @default(cuid())
-  email             String    @unique
-  username          String    @unique
-  password          String
-  emailVerified     DateTime?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  resetToken        String?   @unique
-  resetTokenExpiry  DateTime?
+  id                 String              @id @default(cuid())
+  username           String              @unique(map: "User_username_key")
+  email              String              @unique(map: "User_email_key")
+  password           String
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  emailVerified      DateTime?
+  resetToken         String?             @unique(map: "User_resetToken_key")
+  resetTokenExpiry   DateTime?
   verificationTokens VerificationToken[]
 
-  @@map("user")  // Explicitly map the table name
+  @@map("user")
 }
-
 
 model VerificationToken {
   id        String   @id @default(cuid())
-  token     String   @unique
+  token     String   @unique(map: "VerificationToken_token_key")
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   expires   DateTime
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade, map: "VerificationToken_userId_fkey")
 
-  @@index([userId])
+  @@index([userId], map: "VerificationToken_userId_idx")
+  @@map("verificationtoken")
+}
+
+model Ingredients {
+  id         Int                    @id @default(autoincrement())
+  ingredient String                 @db.VarChar(255)
+  category   String?                @default("unknown") @db.VarChar(50)
+  impact     String?                @db.Text
+  notes      String?                @db.Text
+  importance Ingredients_importance @default(UNKNOWN)
+  createdAt  DateTime?              @default(now()) @db.Timestamp(0)
+
+  @@unique([ingredient, category], map: "ingredient")
+  @@map("ingredients")
+}
+
+model Wheyprotein {
+  Category           String? @db.VarChar(50)
+  Name               String? @db.VarChar(100)
+  Brand              String? @db.VarChar(100)
+  Size               String? @db.VarChar(50)
+  Flavor             String? @db.VarChar(100)
+  Servings           Float?  @db.Float
+  Rating             Float?  @db.Float
+  FlavorRating       Float?  @db.Float
+  Reviews            Int?
+  Price              String? @db.VarChar(20)
+  PricePerServing    String? @db.VarChar(20)
+  CALORIES           Int?
+  TOTAL_FAT          Float?  @db.Float
+  CHOLESTEROL        Float?  @db.Float
+  SODIUM             Float?  @db.Float
+  TOTAL_CARBOHYDRATE Float?  @db.Float
+  PROTEIN            Float?  @db.Float
+  CALCIUM            Float?  @db.Float
+  POTASSIUM          Float?  @db.Float
+  DIETARY_FIBER      Float?  @db.Float
+  IRON               Float?  @db.Float
+
+  @@ignore
+}
+
+enum Ingredients_importance {
+  HIGH_QUALITY @map("HIGH QUALITY")
+  FILLER
+  ARTIFICIAL
+  NEUTRAL
+  UNKNOWN
 }

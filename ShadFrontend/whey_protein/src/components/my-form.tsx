@@ -57,7 +57,7 @@ export default function MyForm({
     formData.append("file", selectedFile);
 
     try {
-      const response = await fetch("http://127.0.0.1:5000/api/upload-label", {
+      const response = await fetch("https://backend-image-i6hjrqpaca-uc.a.run.app/api/upload-label", {
         method: "POST",
         body: formData,
       });

@@ -29,7 +29,7 @@ export async function sendEmail(email: string, subject: string, htmlContent: str
 }
 
 export async function sendVerificationEmail(email: string, token: string) {
-  const confirmationLink = `${process.env.NEXTAUTH_URL}/auth/verify?token=${token}`
+  const confirmationLink = `${process.env.NEXTAUTH_URL}/api/auth/verify?token=${token}`
 
   const htmlContent = `
     <div style="max-width: 600px; margin: 0 auto; padding: 20px;">

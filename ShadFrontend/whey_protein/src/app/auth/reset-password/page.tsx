@@ -1,6 +1,6 @@
-"use client"
+ "use client"
 
-import { useEffect } from "react"
+import { Suspense, useEffect } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -23,7 +23,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { PasswordInput } from "@/components/ui/password-input"
 
 const formSchema = z
@@ -36,10 +35,10 @@ const formSchema = z
     message: "Passwords do not match",
   })
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const router = useRouter()
-  const searchParams = useSearchParams() ?? new URLSearchParams() // ✅ Ensure it's never null
-  const token = searchParams.get("token") || "" // ✅ Ensure token is always a string
+  const searchParams = useSearchParams() ?? new URLSearchParams()
+  const token = searchParams.get("token") || ""
 
   useEffect(() => {
     if (!token) {
@@ -134,5 +133,13 @@ export default function ResetPasswordPage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ResetPasswordContent />
+    </Suspense>
   )
 }
