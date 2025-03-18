@@ -1,0 +1,40 @@
+import pandas as pd
+import re
+
+# Load the cleaned CSV file
+file_path = 'C:/ProgramData/MySQL/MySQL Server 8.4/Uploads/trying_cleaned_filtered_whey.csv'
+data = pd.read_csv(file_path)
+
+# List of numeric columns to clean (adjust as per your MySQL table schema)
+numeric_columns = ['Servings', 'Rating', 'FlavorRating', 'Reviews', 'CALORIES']
+# List of columns with units
+columns_with_units = ['TOTALFAT', 'CHOLESTEROL', 'SODIUM', 'TOTALCARBOHYDRATE', 
+                      'PROTEIN', 'CALCIUM', 'POTASSIUM', 'DIETARYFIBER', 'IRON']
+
+# Function to extract numeric value
+def extract_numeric(value):
+    match = re.search(r"[\d.]+", str(value))  # Extract numeric part
+    return float(match.group()) if match else None
+
+# Ensure numeric columns contain only valid numeric values
+for col in numeric_columns:
+    if col in data.columns:
+        data[col] = pd.to_numeric(data[col], errors='coerce')  # Coerce invalid values to NaN
+
+# Replace NaN in numeric columns with default values (e.g., 0.0)
+data[numeric_columns] = data[numeric_columns].fillna(0.0)
+
+# Trim whitespace from string columns
+string_columns = data.select_dtypes(include=['object']).columns
+for col in string_columns:
+    data[col] = data[col].str.strip()
+
+# Clean the columns
+for col in columns_with_units:
+    if col in data.columns:
+        data[col] = data[col].apply(extract_numeric)
+
+# Save the fully cleaned data to a new CSV file
+final_cleaned_file_path = 'C:/ProgramData/MySQL/MySQL Server 8.4/Uploads/tried_cleaned_filtered_whey.csv'
+data.to_csv(final_cleaned_file_path, index=False)
+
